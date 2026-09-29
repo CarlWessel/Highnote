@@ -1,10 +1,10 @@
 {
   "expo": {
-    "name": "my-app",
-    "slug": "my-app",
+    "name": "HighNote",
+    "slug": "HighNote",
     "version": "1.0.0",
     "orientation": "portrait",
-    "icon": "./assets/images/icon.png",
+    "icon": "./assets/images/highnote.png",
     "scheme": "myapp",
     "userInterfaceStyle": "automatic",
     "ios": {

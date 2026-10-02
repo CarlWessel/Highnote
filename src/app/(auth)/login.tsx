@@ -1,8 +1,10 @@
+import { useRouter } from "expo-router";
 import { View, Text, TextInput, TouchableOpacity, StyleSheet } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
 
-export default function login() {
+export default function loginsScreen() {
+    const router = useRouter();
     return(
         <SafeAreaView edges={["top", "bottom"]} style={styles.container}>
             <View style={styles.content}>
@@ -29,7 +31,7 @@ export default function login() {
                         <Text style={styles.buttonText}>Sign In</Text>
                     </TouchableOpacity>
 
-                    <TouchableOpacity style={styles.linkButton}>
+                    <TouchableOpacity style={styles.linkButton} onPress={() => router.push("/(auth)/signup")}>
                         <Text style={styles.linkButtonText}>Don't have an account? <Text style={styles.linkButtonTextBold}>Sign Up</Text></Text>
                     </TouchableOpacity>
                 </View>

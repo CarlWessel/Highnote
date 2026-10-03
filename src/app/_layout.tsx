@@ -12,7 +12,7 @@ export default function RootLayout() {
     } else {
       router.replace("/(tabs)");
     }
-  })
+  }, [])
   return (
     <AuthProvider>
       <Stack screenOptions={{headerShown: false}}>

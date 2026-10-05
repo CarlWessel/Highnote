@@ -112,4 +112,10 @@ export const styles = StyleSheet.create({
         fontWeight: "600",
         color: "#000",
     },
+    profileImage:{
+        width: 120,
+        height: 120,
+        backgroundColor: "#f5f5f5",
+        borderRadius: 60,
+    }
 });

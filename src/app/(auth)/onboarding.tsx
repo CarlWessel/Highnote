@@ -6,21 +6,23 @@ import * as ImagePicker from "expo-image-picker"
 import { supabase } from "@/lib/supabase/client";
 import { uploadProfileImage } from "@/lib/supabase/storage";
 import { useAuth } from "@/context/AuthContext";
+import { useRouter } from "expo-router";
 
 export default function SignUpScreen() {
 
     const [name, setName] = useState("");
-    const [userName, setUserName] = useState("");
+    const [userName, setUsername] = useState("");
     const [isLoading, setIsLoading] = useState(false);
     const [profileImage, setProfileImage] = useState<string | null>(null);
-    const {user} = useAuth();
+    const { user, updateUser } = useAuth();
+    const router = useRouter()
 
     const pickImage = async () => {
         const {status} = await ImagePicker.requestMediaLibraryPermissionsAsync();
 
         if (status !== "granted") {
             Alert.alert(
-                "Permission needed", 
+                "Permission needed",
                 "We need cameraroll permissions to select a profile image.");
             return;
         }
@@ -41,7 +43,7 @@ export default function SignUpScreen() {
 
         if (status !== "granted") {
             Alert.alert(
-                "Permission needed", 
+                "Permission needed",
                 "We need camera permissions to take a photo.");
             return;
         }
@@ -88,28 +90,38 @@ export default function SignUpScreen() {
                 .neq("id", user.id)
                 .single();
 
-                if(existingUser) {
-                    Alert.alert(
-                        "Error",
-                        "This username is already taken, please choose another one."
-                    );
-                    setIsLoading(false);
-                    return;
-                }
+            if(existingUser) {
+                Alert.alert(
+                    "Error",
+                    "This username is already taken, please choose another one."
+                );
+                setIsLoading(false);
+                return;
+            }
 
-        //      upload profile image
-                let profileImageUrl: string | undefined;
-                if (profileImage) {
-                    try {
-                        await uploadProfileImage(user.id, profileImage)
-                    } catch (error) {
-                        console.error("Error uploading profile image:", error);
-                        Alert.alert(
-                            "Warning",
-                            "Failed to upload profile image, continuing without image.",
-                        );
-                    }
+            // upload profile image
+            let profileImageUrl: string | undefined;
+            if (profileImage) {
+                try {
+                    profileImageUrl = await uploadProfileImage(user.id, profileImage)
+                } catch (error) {
+                    console.error("Error uploading profile image:", error);
+                    Alert.alert(
+                        "Warning",
+                        "Failed to upload profile image, continuing without image.",
+                    );
                 }
+            }
+
+            // Update profile
+            await updateUser({
+                name,
+                username: userName,
+                profileImage: profileImageUrl,
+                onboardingCompleted: true,
+            });
+
+            router.replace("/(tabs)");
 
         } catch (error) {
             Alert.alert("Error, failed to complete profile. Please try again");
@@ -129,15 +141,16 @@ export default function SignUpScreen() {
                 <View style={styles.onboardingForm}>
                     <TouchableOpacity style={styles.imageContainer} onPress={showImagePicker}>
                         {profileImage ? (
-                            <Image 
+                            <Image
                                 source={{ uri: profileImage }} style={styles.profileImage}
                             />
                         ) : (
-                        <View style={styles.placeholderImage}>
-                            <Text style = {styles.placeholderText}>+</Text>
-                        </View>)}
+                            <View style={styles.placeholderImage}>
+                                <Text style = {styles.placeholderText}>+</Text>
+                            </View>
+                        )}
                         <View style={styles.editBadge}>
-                            <Text style = {styles.editText}>Edit</Text>  
+                            <Text style = {styles.editText}>Edit</Text>
                         </View>
                     </TouchableOpacity>
 
@@ -155,7 +168,7 @@ export default function SignUpScreen() {
                         placeholder = "Username"
                         placeholderTextColor = "#999"
                         value = {userName}
-                        onChangeText = {setUserName}
+                        onChangeText = {setUsername}
                         autoCapitalize = "none"
                         autoComplete = "username"
                     />
@@ -163,15 +176,13 @@ export default function SignUpScreen() {
                     <TouchableOpacity style={styles.onboardingButton} onPress={ handleComplete }>
                         { isLoading ? (
                             <ActivityIndicator size={24} color="#fff"/>
-                            ) : (
-                                <Text style={styles.buttonText}>Complete Setup</Text>
-                            )}
+                        ) : (
+                            <Text style={styles.buttonText}>Complete Setup</Text>
+                        )}
                     </TouchableOpacity>
-
 
                 </View>
             </View>
         </SafeAreaView>
     );
 }
-
